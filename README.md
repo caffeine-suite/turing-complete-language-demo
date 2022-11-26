@@ -90,38 +90,54 @@ while state >= 0 do (
 
 # CaffeineScript
 
-I prefer to write JavaScript using CaffeineScript, a language I created to make JavaScript more readable and more than 3x faster to write. If you are curious, the same Turing-Complete+ language we defined above in ~100 lines of JavaScript takes just 30 lines of CaffeineScript (with the conceit of longer lines which, IMO, improve readability in this narrow case):
+I prefer to write JavaScript using CaffeineScript, a language I created to make JavaScript more readable and more than 3x faster to write. If you are curious, the same Turing-Complete+ language we defined above in ~100 lines of JavaScript takes less than 50 lines of CaffeineScript:
 
 ```coffee
 class TuringCompleteParser extends &CaffeineEight.Parser
   getStore:   -> @store ?= []
   getContext: -> @context ?= {}
   operators   = {}
-  getOperator = (op) -> operators[op] ?= eval "" (a, b) => a #{op} b
+  getOperator = (op) -> operators[op] ?= eval "(a, b) => a #{op} b"
 
+  ############################################
   # SEQUENCING
-  @rule root:       [] "expression nextExpr* _? ';'?"                               evaluate: -> reduce last, e in @nextExprs inject @expression.evaluate() do e.expression.evaluate()
-  @rule nextExpr:   [] "_? ';' _? expression"
+  @rule root: [] "expression nextExpr* _? ';'?" evaluate: ->
+    reduce last, e in @nextExprs inject @expression.evaluate() do e.expression.evaluate()
+  @rule nextExpr: [] "_? ';' _? expression"
 
+  ############################################
   # ARITHMETIC
-  @rule expression: [] "operand _? op:/==|!=|<=|>=|[-+*\\/<>]/ _? operand"          evaluate: -> getOperator(@op.text) (array op in @operands with op.evaluate())...
-  @rule expression: [] "operand"                                                    evaluate: -> @operand.evaluate()
-  @rule operand:    [] "'(' _? root _? ')'"                                         evaluate: -> @root.evaluate()
-  @rule operand:    [] /-?[0-9]+/                                                   evaluate: -> eval @text
+  @rule expression: [] "operand _? op:/==|!=|<=|>=|[-+*\\/<>]/ _? operand" evaluate: ->
+    getOperator(@op.text) (array op in @operands with op.evaluate())...
+
+  @rule expression: [] "operand"            evaluate: -> @operand.evaluate()
+  @rule operand:    [] "'(' _? root _? ')'" evaluate: -> @root.evaluate()
+  @rule operand:    [] /-?[0-9]+/           evaluate: -> eval @text
   @rule _:          [] /\s+/
 
+  ############################################
   # MEMORY
-  @rule expression: [] "'[' _? expression _? ']' _? '=' _? value:expression"        evaluate: -> @parser.getStore()[@expression.evaluate()] = @value.evaluate()
-  @rule expression: [] "'[' _? expression _? ']'"                                   evaluate: -> @parser.getStore()[@expression.evaluate()]
+  @rule expression: [] "'[' _? expression _? ']' _? '=' _? value:expression" evaluate: ->
+    @parser.getStore()[@expression.evaluate()] = @value.evaluate()
 
+  @rule expression: [] "'[' _? expression _? ']'" evaluate: ->
+    @parser.getStore()[@expression.evaluate()]
+
+  ############################################
   # LOOPING AND CONDITIONALS
-  @rule operand:    [] "'while' _ test:expression _ 'do' _ body:expression"         evaluate: -> while @test.evaluate() do @body.evaluate()
-  @rule operand:    [] "'if' _ test:expression _ 'then' _ then:expression _ else?"  evaluate: -> if @test.evaluate() then @then.evaluate() else @else?.expression.evaluate()
+  @rule operand:    [] "'while' _ test:expression _ 'do' _ body:expression" evaluate: ->
+    while @test.evaluate() do @body.evaluate()
+
+  @rule operand:    [] "'if' _ test:expression _ 'then' _ then:expression _ else?" evaluate: ->
+    if @test.evaluate() then @then.evaluate() else @else?.expression.evaluate()
   @rule else:       [] "'else' _ expression"
 
+  ############################################
   # VARIABLES
-  @rule operand:    [] "identifier _? '=' _? expression"                            evaluate: -> @parser.getContext()[@identifier.text] = @expression.evaluate()
-  @rule operand:    [] "identifier"                                                 evaluate: -> @parser.getContext()[@identifier.text]
+  @rule operand:    [] "identifier _? '=' _? expression" evaluate: ->
+    @parser.getContext()[@identifier.text] = @expression.evaluate()
+
+  @rule operand:    [] "identifier" evaluate: -> @parser.getContext()[@identifier.text]
   @rule identifier: [] /\w+/
 ```
 

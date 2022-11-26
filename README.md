@@ -14,6 +14,7 @@ One simple method of verifying if your language is Turing Complete is to create 
 # Source
 
 - [Turing Complete+ Source](./source/TuringCompleteParser.js) (including extra, "plus" features nice-to-have features like variables and if-statements)
+- [100% Code-Coverage Tests](./source/TuringCompleteParser.test.js)
 
 Assembly Sequence (how to build it one step at a time):
 

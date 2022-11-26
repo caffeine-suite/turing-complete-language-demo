@@ -89,7 +89,7 @@ while state >= 0 do (
 
 # CaffeineScript
 
-I prefer to write JavaScript using CaffeineScript, a language I created to write JavaScript more than 3x faster. If you are curious, the same Turing-Complete+ language we defined above in just under 100 lines of code takes just 30 lines of CaffeineScript (with some small conceits):
+I prefer to write JavaScript using CaffeineScript, a language I created to make JavaScript more readable and more than 3x faster to write. If you are curious, the same Turing-Complete+ language we defined above in ~100 lines of JavaScript takes just 30 lines of CaffeineScript (with some small conceits):
 
 ```coffee
 class TuringCompleteParser extends &CaffeineEight.Parser

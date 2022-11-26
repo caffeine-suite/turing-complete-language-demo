@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "start": "node source/cli",
+    "test": "jest test"
+  },
+  "dependencies": {
+    "caffeine-eight": "^2.7.0"
+  },
+  "devDependencies": {
+    "jest": "^29.3.1"
+  },
+  "version": "1.0.0"
+}

@@ -1,3 +1,3 @@
-const TuringCompleteParser = require("./TuringCompleteParser");
+const TcParser = require("./TcParser");
 
-TuringCompleteParser.repl();
+TcParser.repl();

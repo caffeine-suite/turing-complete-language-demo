@@ -1,4 +1,4 @@
-class TuringCompleteParser extends &CaffeineEight.Parser
+class TcParser extends &CaffeineEight.Parser
   getStore:   -> @store ?= []
   getContext: -> @context ?= {}
   operators   = {}

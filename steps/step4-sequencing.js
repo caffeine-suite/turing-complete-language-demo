@@ -7,11 +7,14 @@ class TcParser extends require("caffeine-eight").Parser {
 module.exports = TcParser;
 
 // 2. Root Rules
-TcParser.rule("root", "expression", {
+TcParser.rule("root", "expression extraExpression* _? ';'?", {
   evaluate() {
-    return this.expression.evaluate();
+    let last = this.expression.evaluate();
+    this.extraExpressions?.forEach(e => (last = e.expression.evaluate()));
+    return last;
   },
 });
+TcParser.rule("extraExpression", "_? ';' _? expression");
 
 // 3. Arithmetic Rules
 TcParser.rule("expression", "operand _? operator:/<=|>=|==|!=|[-+*\\/<>]/ _? operand", {
@@ -36,7 +39,6 @@ TcParser.rule("operand", /-?[0-9]+/, {
 });
 TcParser.rule("_", /\s+/);
 
-//   3c. ADD SEQUENCES
 // 4. Memory Rules
 // 5. While Rules
 //   5a. TURING COMPLETE!

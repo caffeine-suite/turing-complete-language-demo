@@ -1,11 +1,6 @@
-const TuringCompleteParser = require("./TuringCompleteParser");
+const TcParser = require("./TcParser");
 
-const expectEvaluate = (str, expected) => {
-  const parser = new TuringCompleteParser();
-  expect(parser.parse(str).evaluate()).toEqual(expected);
-};
-
-const expecters = {
+const tests = {
   "1 + 2": 3,
   "1 - 2": -1,
   "1 * 2": 2,
@@ -27,7 +22,9 @@ const expecters = {
   "i = 4; s = 1; while i > 0 do (i = i - 1; s = s * 2)": 16,
 };
 
-for (let str in expecters) {
-  const expected = expecters[str];
-  test(`${str} >>> ${expected}`, () => expectEvaluate(str, expected));
+for (const program in tests) {
+  const expected = tests[program];
+  test(`${program} >>> ${expected}`, () => {
+    expect(TcParser.parse(program).evaluate()).toEqual(expected);
+  });
 }

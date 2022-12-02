@@ -1,14 +1,15 @@
+// 1. Parser Class & Export
 class TcParser extends require("caffeine-eight").Parser {
   getStore() {
-    return (this.store = this.store || []);
+    return this.store || (this.store = []);
   }
   getContext() {
-    return (this.store = this.store || {});
+    return this.context || (this.context = {});
   }
 }
+module.exports = TcParser;
 
-//*************************************************
-//  SEQUENCING
+// 2. Root Rules
 TcParser.rule("root", "expression extraExpression* _? ';'?", {
   evaluate() {
     let last = this.expression.evaluate();
@@ -18,28 +19,22 @@ TcParser.rule("root", "expression extraExpression* _? ';'?", {
 });
 TcParser.rule("extraExpression", "_? ';' _? expression");
 
-//*************************************************
-//  ARITHMETIC
-const operators = {};
-const getOperator = op => operators[op] || (operators[op] = eval(`(a, b) => a ${op} b`));
-TcParser.rule("expression", "operand _? op:/==|!=|<=|>=|[-+*\\/<>]/ _? operand", {
+// 3. Arithmetic Rules
+TcParser.rule("expression", "operand _? operator:/<=|>=|==|!=|[-+*\\/<>]/ _? operand", {
   evaluate() {
-    return getOperator(this.op.text)(...this.operands.map(n => n.evaluate()));
+    return eval(`(a, b) => a ${this.operator.text} b`)(this.operands[0].evaluate(), this.operands[1].evaluate());
   },
 });
-
 TcParser.rule("expression", "operand", {
   evaluate() {
     return this.operand.evaluate();
   },
 });
-
 TcParser.rule("operand", "'(' _? root _? ')'", {
   evaluate() {
     return this.root.evaluate();
   },
 });
-
 TcParser.rule("operand", /-?[0-9]+/, {
   evaluate() {
     return eval(this.text);
@@ -47,22 +42,20 @@ TcParser.rule("operand", /-?[0-9]+/, {
 });
 TcParser.rule("_", /\s+/);
 
-//*************************************************
-//  MEMORY
+// 4. Memory Rules
 TcParser.rule("operand", "'[' _? expression _? ']' _? '=' _? value:expression", {
   evaluate() {
     return (this.parser.getStore()[this.expression.evaluate()] = this.value.evaluate());
   },
 });
 
-TcParser.rule("operand", "'[' _? expression _? ']'", {
+TcParser.rule("operand", "'[' _? expression _? ']' ", {
   evaluate() {
     return this.parser.getStore()[this.expression.evaluate()];
   },
 });
 
-//*************************************************
-//  LOOPING AND CONDITIONALS
+// 5. While Rules
 TcParser.rule("operand", "'while' _ test:expression _ 'do' _ body:expression", {
   evaluate() {
     let last;
@@ -71,6 +64,7 @@ TcParser.rule("operand", "'while' _ test:expression _ 'do' _ body:expression", {
   },
 });
 
+// 6. If Rules
 TcParser.rule("operand", "'if' _ test:expression _ 'then' _ then:expression _ else?", {
   evaluate() {
     return this.test.evaluate() ? this.then.evaluate() : this.else?.expression.evaluate();
@@ -78,8 +72,7 @@ TcParser.rule("operand", "'if' _ test:expression _ 'then' _ then:expression _ el
 });
 TcParser.rule("else", "'else' _ expression");
 
-//*************************************************
-//  VARIABLES
+// 7. Variable Rules
 TcParser.rule("identifier", /\w+/);
 TcParser.rule("operand", "identifier _? '=' _? expression", {
   evaluate() {
@@ -92,4 +85,4 @@ TcParser.rule("operand", "identifier", {
   },
 });
 
-module.exports = TcParser;
+TcParser.repl();

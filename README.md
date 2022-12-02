@@ -13,8 +13,8 @@ One simple method of verifying if your language is Turing Complete is to create 
 
 # Source
 
-- [Turing Complete+ Source](./source/TuringCompleteParser.js) (including extra, "plus" features nice-to-have features like variables and if-statements)
-- [100% Code-Coverage Tests](./source/TuringCompleteParser.test.js)
+- [Turing Complete+ Source](./source/TcParser.js) (including extra, "plus" features nice-to-have features like variables and if-statements)
+- [100% Code-Coverage Tests](./source/TcParser.test.js)
 
 Assembly Sequence (how to build it one step at a time):
 
@@ -93,7 +93,7 @@ while state >= 0 do (
 I prefer to write JavaScript using CaffeineScript, a language I created to make JavaScript more readable and more than 3x faster to write. If you are curious, the same Turing-Complete+ language we defined above in ~100 lines of JavaScript takes less than 50 lines of CaffeineScript:
 
 ```coffee
-class TuringCompleteParser extends &CaffeineEight.Parser
+class TcParser extends &CaffeineEight.Parser
   getStore:   -> @store ?= []
   getContext: -> @context ?= {}
   operators   = {}
@@ -145,5 +145,5 @@ To run this code:
 
 ```shell
 > npm install caffeine-script
-> caf TuringCompleteParser.caf
+> caf TcParser.caf
 ```
